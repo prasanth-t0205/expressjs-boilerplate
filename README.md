@@ -55,7 +55,14 @@ Since this is a boilerplate, it defaults to the name `expressjs-boilerplate`. We
 npm run rename my-cool-api
 ```
 
-### 3. Install Dependencies
+### 3. Reset the Boilerplate
+When you are ready to start building your own features, you can clear out all the example "User" files (Controllers, Routes, Services, Models, etc.) by running:
+```bash
+npm run reset
+```
+You will be asked if you want to completely delete the example files or move them into an `/example` folder for future reference.
+
+### 4. Install Dependencies
 Make sure you have Node.js v20+ installed, then install the packages:
 ```bash
 npm install
@@ -127,6 +134,7 @@ expressjs-boilerplate/
 | `npm run dev` | Starts the development server using `ts-node-dev` with hot-reloading. |
 | `npm run build` | Compiles the TypeScript source code and rewrites path aliases via `tsc-alias`. |
 | `npm start` | Runs the compiled output in production using `node dist/server.js`. |
+| `npm run reset` | Interactively strips or moves the example boilerplate code. |
 | `npm run typecheck` | Runs the TypeScript compiler in dry-run mode to check for any type errors. |
 | `npm run lint` | Lints the codebase using ESLint. |
 | `npm run update:packages` | Interactively updates all dependencies to their latest major/minor versions. |
