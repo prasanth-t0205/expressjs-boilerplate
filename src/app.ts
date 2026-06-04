@@ -6,6 +6,8 @@ import { errorHandler } from "@/middleware/error.middleware";
 import { globalRateLimiter } from "@/middleware/rateLimiter.middleware";
 import { env } from "@/config/env.config";
 
+import userRoutes from "@/routes/user.route";
+
 const app: Application = express();
 
 // Trust the first proxy (e.g. Nginx, Render)
@@ -27,14 +29,12 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 // Payload Size Limitations
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
-import userRoutes from "@/routes/user.route";
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
