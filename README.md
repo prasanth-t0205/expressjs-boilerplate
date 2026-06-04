@@ -136,6 +136,12 @@ _(Optional)_ Run the interactive rename script to automatically update the boile
 npm run rename
 ```
 
+_(Optional)_ Run the interactive reset script to clean up the example boilerplate code and documentation files:
+
+```bash
+npm run reset
+```
+
 ### 2. Environment Configuration
 
 Copy the sample environment file. Note that we strictly limit `.env` variables to infrastructure secrets (Database URI, JWT Secrets). All feature flags are configured programmatically in code!

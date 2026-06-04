@@ -1,6 +1,6 @@
 # 🏗️ Architecture Patterns
 
-While the `src/forge/` directory contains real, working code that you can import and execute, this document outlines the **recommended conventions and architectural patterns** for building inside this boilerplate. These patterns describe _how_ to build your database access and feature modules.
+While the `forge/` directory contains real, working code that you can import and execute, this document outlines the **recommended conventions and architectural patterns** for building inside this boilerplate. These patterns describe _how_ to build your database access and feature modules.
 
 ---
 
@@ -41,7 +41,7 @@ Never invent your own pagination response formats. Always use the standardized `
 When returning a list of resources from a Controller, use `ApiResponse.paginate()` to guarantee a consistent API contract across your entire application.
 
 ```typescript
-import { ApiResponse } from '@/forge/response';
+import { ApiResponse } from '@forge/response';
 
 return ApiResponse.paginate(res, items, 1, 10, totalCount, 'Items retrieved successfully');
 ```
@@ -56,7 +56,7 @@ Do not use `res.status(500).json(...)` manually anywhere in your code. We rely o
 Always throw an `AppError` and let the global error handler catch it and format the response for the client.
 
 ```typescript
-import { AppError } from '@/forge/errors';
+import { AppError } from '@forge/errors';
 
 if (!user) {
   throw new AppError('User not found', 404);
