@@ -62,10 +62,10 @@ const updateAppTs = () => {
     let appTsContent = fs.readFileSync(appTsPath, 'utf8');
     
     // Remove the import statement
-    appTsContent = appTsContent.replace(/import userRoutes from "@\/routes\/user\.route";\n?/g, '');
+    appTsContent = appTsContent.replace(/import userRoutes from ['"]@\/routes\/user\.route['"];\n?/g, '');
     
     // Remove the app.use statement
-    appTsContent = appTsContent.replace(/\/\/ Mount Routes\napp\.use\("\/api\/users", userRoutes\);\n?/g, '// Mount Routes\n// app.use("/api/your-route", yourRoute);\n');
+    appTsContent = appTsContent.replace(/\/\/ Mount Routes\napp\.use\(['"]\/api\/users['"], userRoutes\);\n?/g, '// Mount Routes\n// app.use("/api/your-route", yourRoute);\n');
     
     fs.writeFileSync(appTsPath, appTsContent);
     console.log('Updated: src/app.ts (Removed example routes)');

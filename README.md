@@ -125,7 +125,15 @@ We enforce a strict separation between framework utilities and your actual appli
 Clone the repository and install the dependencies:
 
 ```bash
+git clone https://github.com/prasanth-t0205/expressjs-boilerplate.git
+cd expressjs-boilerplate
 npm install
+```
+
+_(Optional)_ Run the interactive rename script to automatically update the boilerplate name to your custom project name across all files:
+
+```bash
+npm run rename
 ```
 
 ### 2. Environment Configuration
@@ -150,6 +158,24 @@ To compile and run in production mode:
 npm run build
 npm start
 ```
+
+### 4. 📜 Available Scripts
+
+This boilerplate includes a comprehensive suite of scripts to manage the entire application lifecycle.
+
+| Command                   | Description                                                                               |
+| :------------------------ | :---------------------------------------------------------------------------------------- |
+| `npm run dev`             | Starts the development server with blazing-fast hot-reloading via `ts-node-dev`.          |
+| `npm run build`           | Compiles the TypeScript application into the `dist/` directory and resolves path aliases. |
+| `npm start`               | Runs the compiled production code (`node dist/server.js`).                                |
+| `npm run typecheck`       | Runs the TypeScript compiler strictly to check for typing errors without emitting files.  |
+| `npm run lint`            | Lints the entire codebase using ESLint to enforce code quality.                           |
+| `npm test`                | Executes the Jest testing suite.                                                          |
+| `npm run test:watch`      | Runs Jest in interactive watch mode for active development.                               |
+| `npm run test:coverage`   | Runs Jest and generates a detailed test coverage report.                                  |
+| `npm run rename`          | Runs a custom script to quickly rename the boilerplate to your new project's name.        |
+| `npm run reset`           | Runs a clean-up script to wipe boilerplate-specific git history and reset the repository. |
+| `npm run update:packages` | Automatically checks for and safely updates all `package.json` dependencies.              |
 
 ---
 
