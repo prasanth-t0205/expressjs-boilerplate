@@ -41,3 +41,9 @@ Thumbs.db
 
 # Boilerplate Example Archive
 example/
+
+# Testing
+coverage/
+
+# Husky
+.husky/
