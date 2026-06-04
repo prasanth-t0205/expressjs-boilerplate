@@ -28,8 +28,8 @@ ENV NODE_ENV=production
 # Copy package files
 COPY package*.json ./
 
-# Install ONLY production dependencies
-RUN npm ci --only=production
+# Install ONLY production dependencies (ignoring scripts like Husky's prepare)
+RUN npm ci --omit=dev --ignore-scripts
 
 # Copy built artifacts from the builder stage
 COPY --from=builder /app/dist ./dist

@@ -350,6 +350,8 @@ This boilerplate comes with a professional-grade CI/CD pipeline out of the box, 
 Before a commit is ever created, **Husky** intercepts the process and runs `lint-staged`. This ensures that ESLint and Prettier are run automatically on your staged files.
 Additionally, **commitlint** enforces the [Conventional Commits](https://www.conventionalcommits.org/) standard on all commit messages (e.g., `feat: add user login`, `fix: resolve crash on startup`). If your code fails linting or your commit message is formatted incorrectly, the commit is safely blocked so you can fix it locally!
 
+> ⚠️ **Important**: Under the Conventional Commits standard, the first line of your commit message **must not exceed 100 characters**. If it is too long, the commit will be blocked!
+
 ### 2. The Quality Gate (`ci.yml`)
 
 When you open a Pull Request against `main`, the `ci.yml` GitHub Action automatically runs. This acts as a strict quality gate that:
