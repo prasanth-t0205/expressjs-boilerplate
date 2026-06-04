@@ -3,7 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { errorHandler } from "@/middleware/error.middleware";
-import { globalRateLimiter } from "@/middleware/rateLimiter.middleware";
 import { env } from "@/config/env.config";
 
 import userRoutes from "@/routes/user.route";
@@ -16,8 +15,7 @@ app.set("trust proxy", 1);
 // Security Headers
 app.use(helmet());
 
-// Rate Limiting
-app.use("/api", globalRateLimiter);
+// Rate Limiting (Removed - implement your own via Redis/Valkey if needed)
 
 // Request Logger
 if (env.NODE_ENV !== "test") {

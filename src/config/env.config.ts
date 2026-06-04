@@ -26,7 +26,7 @@ try {
 } catch (error: any) {
   if (error instanceof z.ZodError) {
     console.error("Invalid Environment Variables:");
-    (error as any).errors.forEach((e: any) => {
+    error.issues.forEach((e: any) => {
       console.error(`- ${e.path.join(".")}: ${e.message}`);
     });
     process.exit(1);

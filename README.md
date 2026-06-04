@@ -17,7 +17,6 @@ Express.js is an incredibly unopinionated framework. While its flexibility is it
 * **Strict TypeScript**: 100% strongly typed with zero `any` usage.
 * **Database Agnostic Architecture**: Implements the Repository and Service patterns so you can swap MongoDB for PostgreSQL without touching your core logic.
 * **Strict Environment Validation**: Uses **Zod** to validate all environment variables on boot. The server strictly refuses to start if `.env` is misconfigured, preventing silent production crashes!
-* **Advanced URL-Based Rate Limiting**: Unlike normal rate limiters that block a user from the entire app if they spam one route, this boilerplate uses a custom URL-based key generator. Users are rate-limited *per-route*. It also includes an `authLimiter` that only penalizes *failed* login attempts.
 * **Security Hardened**: Pre-configured with `helmet`, strict `cors` policies, and payload size limitations.
 * **Centralized Error Handling**: A global `errorHandler` and `AppError` class that seamlessly catches and formats asynchronous errors using a clean `catchAsync` wrapper.
 * **Request Validation**: Uses **Zod** middleware to strictly type-check all incoming `req.body`, `req.query`, and `req.params`.
@@ -131,6 +130,100 @@ expressjs-boilerplate/
 | `npm run typecheck` | Runs the TypeScript compiler in dry-run mode to check for any type errors. |
 | `npm run lint` | Lints the codebase using ESLint. |
 | `npm run update:packages` | Interactively updates all dependencies to their latest major/minor versions. |
+| `npm run test` | Runs the Jest test suite. |
+| `npm run test:watch` | Runs the test suite in watch mode (useful during development). |
+| `npm run test:coverage` | Generates a test coverage report. |
+
+---
+
+## 🧪 Testing
+
+This boilerplate uses **Jest** and **Supertest** for robust testing.
+
+1. **Unit Tests**: Place your unit tests for services, utilities, and standalone functions in the `tests/` directory (or alongside the files they test, e.g., `user.service.test.ts`).
+2. **Integration Tests**: Test your Express routes using `Supertest` to simulate HTTP requests (see `tests/app.test.ts` for an example).
+
+Run the tests using:
+```bash
+npm run test
+```
+
+---
+
+## ⚡️ Distributed Rate Limiting (Valkey / Redis)
+
+This boilerplate avoids using naive in-memory rate limiters that fail when your application horizontally scales. Instead, it is designed to integrate with **Valkey** (or Redis) for enterprise-grade distributed rate limiting.
+
+Here is the perfect approach to building rate limiters using a distributed key-value store:
+
+### 1. Limiting by User ID (The Best Approach)
+For authenticated users, completely ignore their IP address. Apply the limit directly to their unique User ID. This ensures that if a user switches between their phone and laptop, they share the same rate limit pool.
+**Valkey Key Format:** `"ratelimit:user:<USER_ID>"`
+
+### 2. Limiting by User ID + Endpoint
+Some endpoints (like PDF exports or AI generation) are significantly more computationally expensive than others (like fetching a profile). You should rate limit these expensive endpoints independently of the user's global limit.
+**Valkey Key Format:** `"ratelimit:user:<USER_ID>:endpoint:<ENDPOINT_PATH>"`
+
+### 3. Limiting by IP + Endpoint (For Unauthenticated Users)
+If the user isn't logged in (e.g., the login screen or public search API), you must fall back to their IP address. However, always combine it with the specific endpoint. This ensures that if they spam the login route, they only get blocked from the login route, rather than being blocked from the entire public application.
+**Valkey Key Format:** `"ratelimit:ip:<IP_ADDRESS>:endpoint:<ENDPOINT_PATH>"`
+
+### 🛠️ How to Implement Valkey Rate Limiting
+
+**1. Install Dependencies**
+To connect Express to Valkey, install `ioredis` and `rate-limit-redis`:
+```bash
+npm install express-rate-limit rate-limit-redis ioredis
+```
+
+**2. Create the Middleware (`src/middleware/rateLimiter.middleware.ts`)**
+Here is a production-ready example using the Boilerplate's standards:
+
+```typescript
+import rateLimit from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
+import Redis from "ioredis";
+import { Request } from "express";
+
+// Connect to Valkey (or Redis)
+const valkeyClient = new Redis(process.env.VALKEY_URI || "redis://localhost:6379");
+
+export const apiRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each user to 100 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  
+  // Connect to Valkey Store
+  store: new RedisStore({
+    sendCommand: (...args: string[]) => valkeyClient.call(...args),
+  }),
+
+  // Generate Key based on User ID (or fallback to IP + Endpoint)
+  keyGenerator: (req: Request): string => {
+    // If the user is logged in, limit by their User ID
+    if (req.user && req.user.id) {
+      return `ratelimit:user:${req.user.id}`;
+    }
+    // Fallback for unauthenticated users: IP + Endpoint
+    const ip = req.ip || "unknown";
+    return `ratelimit:ip:${ip}:endpoint:${req.originalUrl}`;
+  },
+
+  message: {
+    success: false,
+    message: "Too many requests. Please try again later.",
+  },
+});
+```
+
+**3. Apply it in `src/app.ts`**
+```typescript
+import { apiRateLimiter } from "@/middleware/rateLimiter.middleware";
+
+// Apply to all API routes
+app.use("/api", apiRateLimiter);
+```
 
 ---
 
