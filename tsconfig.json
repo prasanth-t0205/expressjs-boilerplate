@@ -10,9 +10,10 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@forge/*": ["forge/*"]
     }
   },
-  "include": ["src/**/*", "server.ts", "tests/**/*"],
+  "include": ["src/**/*", "forge/**/*", "server.ts", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
 }

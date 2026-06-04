@@ -11,15 +11,21 @@ registry.registerComponent('securitySchemes', 'bearerAuth', {
   bearerFormat: 'JWT',
 });
 
-export const buildSwaggerSpec = () => {
+export interface SwaggerOptions {
+  title?: string;
+  version?: string;
+  description?: string;
+}
+
+export const buildSwaggerSpec = (options: SwaggerOptions = {}) => {
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
   return generator.generateDocument({
     openapi: '3.0.3',
     info: {
-      title: env.SWAGGER_TITLE,
-      version: env.SWAGGER_VERSION,
-      description: env.SWAGGER_DESCRIPTION,
+      title: options.title || 'My API',
+      version: options.version || '1.0.0',
+      description: options.description || 'API documentation',
     },
     servers: [
       {
@@ -30,12 +36,13 @@ export const buildSwaggerSpec = () => {
   });
 };
 
-export const setupSwagger = (app: Application) => {
-  if (env.SWAGGER_ENABLED !== 'true') {
+export const setupSwagger = (app: Application, options: SwaggerOptions = {}) => {
+  // Automatically disable Swagger in production unless explicitly wanted
+  if (env.NODE_ENV === 'production') {
     return;
   }
 
-  const spec = buildSwaggerSpec();
+  const spec = buildSwaggerSpec(options);
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(spec));
 

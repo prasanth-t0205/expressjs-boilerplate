@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodType, ZodError } from 'zod';
-import { AppError } from '@/forge/errors';
+import { AppError } from '@forge/errors';
 
 export const validate =
   (schema: ZodType<any, any, any>) => async (req: Request, _res: Response, next: NextFunction) => {

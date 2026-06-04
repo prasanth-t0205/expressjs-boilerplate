@@ -2,9 +2,16 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables early
-const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+// Load .env as the base
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
+// Override with environment-specific file if NODE_ENV is set
+if (process.env.NODE_ENV) {
+  dotenv.config({
+    path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`),
+    override: true,
+  });
+}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -18,12 +25,6 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   COOKIE_SECRET: z.string().min(16, 'COOKIE_SECRET is required'),
-
-  // Swagger / OpenAPI
-  SWAGGER_ENABLED: z.enum(['true', 'false']).default('true'),
-  SWAGGER_TITLE: z.string().default('My API'),
-  SWAGGER_VERSION: z.string().default('1.0.0'),
-  SWAGGER_DESCRIPTION: z.string().default('API documentation'),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;

@@ -1,6 +1,6 @@
 import { User } from '@/models/user.model';
 import { CreateUserDto } from '@/dto/user.dto';
-import { AppError } from '@/forge/errors';
+import { AppError } from '@forge/errors';
 
 export const getAllUsers = async () => {
   const users = await User.find({ isActive: true }).select('-__v');

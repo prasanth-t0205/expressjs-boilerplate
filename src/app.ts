@@ -3,10 +3,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import { z } from 'zod';
-import { errorHandler } from '@/forge/errors';
-import { setupSwagger, registry, successResponse } from '@/forge/docs';
-import { ApiResponse } from '@/forge/response';
+import { errorHandler } from '@forge/errors';
+import { setupSwagger } from '@forge/docs';
+import { healthRoutes, registerHealthCheck, metricsRoutes } from '@forge/observability';
+import mongoose from 'mongoose';
+import { AuditLogger, auditMiddleware } from '@forge/audit';
 import { env } from '@/config/env.config';
 
 import userRoutes from '@/routes/user.route';
@@ -18,8 +19,6 @@ app.set('trust proxy', 1);
 
 // Security Headers
 app.use(helmet());
-
-// Rate Limiting (Removed - implement your own via Redis/Valkey if needed)
 
 // Request Logger
 if (env.NODE_ENV !== 'test') {
@@ -41,35 +40,26 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 // Cookie Parser
 app.use(cookieParser(env.COOKIE_SECRET));
 
-// Health Check Endpoint
-const HealthResponseSchema = registry.register(
-  'HealthResponse',
-  z.object({
-    status: z.string(),
-    timestamp: z.string(),
-  }),
-);
-
-registry.registerPath({
-  method: 'get',
-  path: '/health',
-  tags: ['Health'],
-  summary: 'Check API health status',
-  responses: {
-    200: successResponse(HealthResponseSchema, 'API is healthy'),
-  },
+// Register Dependencies for Health Checks
+registerHealthCheck('database', async () => {
+  const state = mongoose.connection.readyState;
+  if (state === 1) return { status: 'healthy' };
+  if (state === 2) return { status: 'connecting' };
+  return { status: 'unhealthy' };
 });
 
-app.get('/health', (_req: Request, res: Response) => {
-  return ApiResponse.success(
-    res,
-    {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-    },
-    'API is healthy',
-  );
+// Mount Observability Routes (Health, Ready, Live, Metrics)
+app.use('/', healthRoutes);
+app.use('/', metricsRoutes);
+
+// Configure Audit Logging programmatically
+AuditLogger.configure({
+  enabled: env.NODE_ENV !== 'test',
+  async: true,
 });
+
+// Global Audit Logging
+app.use(auditMiddleware);
 
 // Mount Routes
 app.use('/api/users', userRoutes);

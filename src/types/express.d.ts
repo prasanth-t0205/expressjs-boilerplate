@@ -1,4 +1,4 @@
-import { TokenPayload } from '@/forge/auth/tokens';
+import { TokenPayload } from '@forge/auth/tokens';
 
 declare global {
   namespace Express {

@@ -1,11 +1,20 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
 // This immediately validates the environment on boot
-import { env } from "@/config/env.config";
-import app from "@/app";
-import { connectDB } from "@/config/db.config";
-import { logger } from "@/utils/logger";
+import { env } from '@/config/env.config';
+
+// OpenTelemetry MUST be initialized BEFORE importing Express or any other instrumented modules!
+import { initTracing } from '@forge/observability/tracing';
+initTracing({
+  enabled: process.env.NODE_ENV === 'production',
+  serviceName: 'expressjs-boilerplate',
+  endpoint: process.env.OTEL_ENDPOINT, // Optional: e.g. http://localhost:4318
+});
+
+import app from '@/app';
+import { connectDB } from '@/config/db.config';
+import { logger } from '@/utils/logger';
 
 const PORT = env.PORT;
 
@@ -16,25 +25,23 @@ const startServer = async () => {
 
   const server = app.listen(PORT, () => {
     logger.info(
-      `[SERVER] Running in [${
-        process.env.NODE_ENV || "development"
-      }] mode on port: ${PORT}`
+      `[SERVER] Running in [${process.env.NODE_ENV || 'development'}] mode on port: ${PORT}`,
     );
   });
 
   // Handle Unhandled Promise Rejections
-  process.on("unhandledRejection", (err: Error) => {
-    logger.error("UNHANDLED REJECTION! Shutting down...", err);
+  process.on('unhandledRejection', (err: Error) => {
+    logger.error('UNHANDLED REJECTION! Shutting down...', err);
     server.close(() => {
       process.exit(1);
     });
   });
 
   // Handle SIGTERM (Graceful shutdown)
-  process.on("SIGTERM", () => {
-    logger.warn("SIGTERM received. Shutting down gracefully...");
+  process.on('SIGTERM', () => {
+    logger.warn('SIGTERM received. Shutting down gracefully...');
     server.close(() => {
-      logger.info("Process terminated.");
+      logger.info('Process terminated.');
     });
   });
 };

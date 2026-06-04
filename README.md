@@ -16,15 +16,18 @@ Express.js is an incredibly unopinionated framework. While its flexibility is it
 
 - **Strict TypeScript**: 100% strongly typed with zero `any` usage.
 - **Forge Core Utility Layer**: A centralized `src/forge/` layer providing production-ready modules for JWT authentication, bcrypt password hashing, secure httpOnly cookies, API response formatting, and common Zod validations.
-- **Database Agnostic Architecture**: Implements the Repository and Service patterns so you can swap MongoDB for PostgreSQL without touching your core logic.
+- **Database Agnostic Architecture**: Implements the Repository and Service patterns so you can swap MongoDB for PostgreSQL without touching your core logic. All enterprise features (Webhooks, Tenancy, Audit) remain 100% database-agnostic!
+- **Enterprise Multi-Tenancy**: Built-in support for B2B/SaaS isolation using `AsyncLocalStorage`. Resolve tenants dynamically via subdomains or headers and access the `TenantContext` anywhere without prop-drilling!
+- **Event-Driven & Microservice Ready**: Decouple logic using a strict, type-safe in-process `EventBus`. Ready to scale out with a native **Circuit Breaker**, **Service Registry**, and a typed inter-service HTTP Client!
+- **Advanced Authentication**: Zero-dependency, purely native implementations for OAuth2 (Google/GitHub), API Key generation & hashing, and RFC 6238 TOTP (Two-Factor Authentication).
+- **Secure Webhook System**: Complete utilities for outbound HMAC-SHA256 webhook payload signing and asynchronous dispatching, plus inbound timing-safe signature verification.
+- **Observability & Audit Logging**: Ready for production monitoring with `/health`, `/live`, `/ready` endpoints, Prometheus `/metrics`, OpenTelemetry distributed tracing, and non-blocking asynchronous Audit Logging!
 - **Strict Environment Validation**: Uses **Zod** to validate all environment variables on boot. The server strictly refuses to start if `.env` is misconfigured, preventing silent production crashes!
 - **Security Hardened**: Pre-configured with `helmet`, strict `cors` policies, and payload size limitations.
 - **Centralized Error Handling**: A global `errorHandler` and `AppError` class that seamlessly catches and formats asynchronous errors using a clean `catchAsync` wrapper.
-- **Request Validation**: Uses **Zod** middleware to strictly type-check all incoming `req.body`, `req.query`, and `req.params`.
-- **Automated Swagger / OpenAPI**: Your Zod schemas serve as the single source of truth, automatically generating beautiful, interactive Swagger documentation at `/api-docs`!
+- **Request Validation & Auto Swagger**: Uses **Zod** middleware to type-check incoming requests. Your Zod schemas serve as the single source of truth, automatically generating beautiful Swagger documentation at `/api-docs`! Swagger is configured purely programmatically in `src/app.ts` (keeping your `.env` clean) and intelligently disables itself in production environments automatically!
 - **Enterprise Path Aliasing**: Uses `@/` aliases configured perfectly via `tsconfig-paths` for local development and securely rewritten via **`tsc-alias`** for production builds. No hacky runtime module interception required!
-- **Production Docker Pipeline**: Ships with a multi-stage `Dockerfile` optimized for minimal size (`node:24-slim`), ready to deploy on AWS ECS, Render, or Railway.
-- **Local Developer Environment**: A pre-configured `docker-compose.yml` to instantly spin up MongoDB and the API side-by-side.
+- **Production Docker Pipeline**: Ships with a multi-stage `Dockerfile` optimized for minimal size (`node:24-slim`), ready to deploy on AWS ECS, Render, or Railway. Local `docker-compose.yml` included for instant API + DB spin-up.
 
 ---
 

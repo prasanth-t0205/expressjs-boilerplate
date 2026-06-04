@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '@/config/env.config';
-import { AppError } from '@/forge/errors';
+import { AppError } from '@forge/errors';
 
 export interface TokenPayload {
   id: string;
@@ -10,15 +10,20 @@ export interface TokenPayload {
   exp?: number;
 }
 
-export const generateAccessToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
+export interface TokenOptions {
+  secret?: string;
+  expiresIn?: string | number;
+}
+
+export const generateAccessToken = (payload: TokenPayload, options?: TokenOptions): string => {
+  return jwt.sign(payload, options?.secret || env.JWT_ACCESS_SECRET, {
+    expiresIn: (options?.expiresIn || env.JWT_ACCESS_EXPIRES_IN) as SignOptions['expiresIn'],
   });
 };
 
-export const generateRefreshToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],
+export const generateRefreshToken = (payload: TokenPayload, options?: TokenOptions): string => {
+  return jwt.sign(payload, options?.secret || env.JWT_REFRESH_SECRET, {
+    expiresIn: (options?.expiresIn || env.JWT_REFRESH_EXPIRES_IN) as SignOptions['expiresIn'],
   });
 };
 

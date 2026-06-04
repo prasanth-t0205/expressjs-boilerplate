@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '@/forge/errors/AppError';
-import { ApiResponse } from '@/forge/response/apiResponse';
+import { AppError } from '@forge/errors/AppError';
+import { ApiResponse } from '@forge/response/apiResponse';
+import { logger } from '@forge/logger';
 
 export const errorHandler = (err: any, _req: Request, res: Response, _next: NextFunction) => {
   let error = { ...err };
@@ -8,7 +9,7 @@ export const errorHandler = (err: any, _req: Request, res: Response, _next: Next
 
   // Log error for developers
   if (process.env.NODE_ENV !== 'production') {
-    console.error(err);
+    logger.error(err);
   }
 
   if (!(error instanceof AppError)) {
