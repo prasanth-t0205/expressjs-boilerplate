@@ -1,0 +1,47 @@
+{
+  "name": "expressjs-boilerplate",
+  "version": "1.0.0",
+  "description": "Universal, production-ready Express + TypeScript boilerplate",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node -r module-alias/register dist/server.js",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update:packages": "npx npm-check-updates -u && npm install"
+  },
+  "keywords": [
+    "express",
+    "typescript",
+    "boilerplate",
+    "rest-api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "_moduleAliases": {
+    "@": "dist/src"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^7.1.0",
+    "module-alias": "^2.2.3",
+    "mongoose": "^8.4.0",
+    "morgan": "^1.10.0",
+    "winston": "^3.13.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.12.12",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.5"
+  }
+}

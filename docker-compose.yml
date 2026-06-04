@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      target: builder # For local dev, we don't necessarily need the strict production image
+    container_name: expressjs_api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/expressjs-boilerplate
+      - CORS_ORIGIN=*
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    container_name: expressjs_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
