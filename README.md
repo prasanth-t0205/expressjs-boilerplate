@@ -1,394 +1,191 @@
-# 🚀 Ultimate Express.js & TypeScript Boilerplate
-
 <div align="center">
-  <p>A production-ready, highly scalable, and extremely robust boilerplate for building enterprise REST APIs with Node.js, Express, and TypeScript.</p>
+  <h1>🚀 Express.js Enterprise Boilerplate</h1>
+  <p>A strictly-typed, production-ready, and highly scalable Express framework powered by TypeScript.</p>
 </div>
 
+<hr/>
+
+## 📖 Overview
+
+Welcome to the **Express.js Enterprise Boilerplate**. This isn't just another Express starter template—it is an expertly engineered microservice-ready architecture designed to give you the developer experience of massive enterprise frameworks (like NestJS or ASP.NET) while retaining the simplicity, speed, and flexibility of Express.
+
+This project introduces **Forge**, our custom-built, zero-dependency, database-agnostic enterprise utility layer. By extracting framework complexities into `forge/` and keeping your business logic in `src/`, this boilerplate ensures your application stays impossibly clean.
+
+## ✨ Core Features (The Forge)
+
+The `forge/` directory contains all the plug-and-play enterprise utilities that power your application.
+
+### 🔐 Advanced Authentication & Authorization
+
+Highly flexible factory functions that adapt to your architecture.
+
+- **Tokens & Cookies**: Generate JWTs and secure HttpOnly cookies with absolute freedom.
+- **`authenticate()` Middleware**: Extract tokens from cookies, headers, or query parameters. Easily inject your own `verify` logic (e.g., Database, Auth0, Firebase) without rewriting error handling.
+- **`authorize()` Middleware**: Apply complex, async business-logic policies inline for fine-grained access control.
+- **Security Extensions**: Built-in logic for 2FA and API Key validation.
+
+### 🌐 Microservice Resilience
+
+Transitioning from a monolith to microservices is seamless.
+
+- **Service Client**: A strictly-typed, native `fetch` wrapper for inter-service communication.
+- **Circuit Breaker**: Built-in state machine (Closed, Open, Half-Open) to instantly isolate and recover from failing microservices, preventing cascading system failures.
+- **Dynamic Registry**: Programmatically register downstream services at runtime without cluttering your `.env` file.
+
+### 📊 Enterprise Observability
+
+Never guess why your application is slow again.
+
+- **OpenTelemetry (Tracing)**: Automatically instruments Express and your database to generate beautiful waterfall latency graphs.
+- **Prometheus Metrics**: Built-in `/metrics` endpoint to feed dashboards like Grafana.
+- **Health Checks**: Standardized `/health` endpoints for Kubernetes/Docker container orchestration.
+
+### 📜 Auto-Generated Documentation
+
+- **Zod to OpenAPI**: Define your validation schemas once using `Zod`, and Forge automatically translates them into a stunning, interactive Swagger UI documentation site.
+
+### 🗂️ Asynchronous Audit Logging
+
+- **Database Agnostic**: Intercepts mutating requests (POST, PUT, DELETE) and emits strongly-typed events to a local `EventBus`. Your application can listen to these events and save them to MongoDB, Postgres, or Elasticsearch without the boilerplate ever forcing a specific database on you.
+
+### 🏢 Multi-Tenancy & Webhooks
+
+- **Tenant Context**: Automatically resolve and isolate tenant identifiers for SaaS applications.
+- **Secure Webhooks**: Safely parse raw bodies and verify cryptographic signatures from providers like Stripe or GitHub.
+
+### 🛡️ Enterprise Core Utilities
+
+- **High-Performance Logger**: Built on `pino`, providing JSON logs in production and pretty-printed logs in development.
+- **EventBus**: Decouple your domain logic natively! Emit events (like `user.created`) and let decoupled listeners handle side-effects (emails, analytics).
+- **Standardized Responses & Errors**: Never write inconsistent API responses again. Uses `ApiResponse` builders for successes and a global Error Handler that catches `AppError` instances to format beautiful error payloads.
+- **Zod Request Validation**: Intercept and validate request bodies, query strings, and params using strictly-typed Zod schemas before they ever reach your controllers.
+
+### 🔒 Security & Data Integrity
+
+- **Environment Validation**: Uses `zod` to strictly validate `process.env` variables on boot. The server will not start if required secrets are missing.
+- **Security Headers & CORS**: Integrated with `helmet` and highly configurable `cors` to protect against common web vulnerabilities.
+- **Database Ready**: Pre-configured with a clean `Mongoose` setup for MongoDB, but abstracted cleanly so you can easily swap to Prisma, Postgres, or MySQL.
+
+### 🛠️ Developer Experience (DX) & Tooling
+
+- **Hot-Reloading**: Uses `ts-node-dev` for instant, blazing-fast recompilation during development.
+- **Strict Code Quality**: Pre-configured with `ESLint`, `Prettier`, and `Husky` pre-commit hooks (`lint-staged`, `commitlint`) to enforce immaculate code standards across your team.
+- **Testing Suite Ready**: Configured with `Jest` and `supertest` for unit and integration testing.
+- **Clean Imports**: Fully configured TypeScript path aliases (`@/*` and `@forge/*`) to eliminate ugly relative imports.
+- **Dockerized**: Includes a production-ready, multi-stage `Dockerfile` and a `docker-compose.yml` for local development.
+
 ---
 
-## 🎯 Our Goal
+## 📁 Architecture & Folder Structure
 
-Express.js is an incredibly unopinionated framework. While its flexibility is its greatest strength, it often leads to chaotic, unmaintainable codebases as projects scale.
+We enforce a strict separation between framework utilities and your actual application logic:
 
-**Our goal with this boilerplate is to provide a rigid, enterprise-grade foundation.** We have synthesized the best practices of clean architecture into a ready-to-deploy template. The cornerstone of this architecture is the **Forge Core Utility Layer**, which gives you pre-built, production-ready, database-agnostic building blocks (auth, tokens, standard errors, validation schemas) so you can focus purely on business logic. Whether you are building a small weekend project or a massive monolithic backend for millions of users, this architecture ensures your codebase remains pristine, testable, and highly secure.
-
-## ✨ Key Features
-
-- **Strict TypeScript**: 100% strongly typed with zero `any` usage.
-- **Forge Core Utility Layer**: A centralized `src/forge/` layer providing production-ready modules for JWT authentication, bcrypt password hashing, secure httpOnly cookies, API response formatting, and common Zod validations.
-- **Database Agnostic Architecture**: Implements the Repository and Service patterns so you can swap MongoDB for PostgreSQL without touching your core logic. All enterprise features (Webhooks, Tenancy, Audit) remain 100% database-agnostic!
-- **Enterprise Multi-Tenancy**: Built-in support for B2B/SaaS isolation using `AsyncLocalStorage`. Resolve tenants dynamically via subdomains or headers and access the `TenantContext` anywhere without prop-drilling!
-- **Event-Driven & Microservice Ready**: Decouple logic using a strict, type-safe in-process `EventBus`. Ready to scale out with a native **Circuit Breaker**, **Service Registry**, and a typed inter-service HTTP Client!
-- **Advanced Authentication**: Zero-dependency, purely native implementations for OAuth2 (Google/GitHub), API Key generation & hashing, and RFC 6238 TOTP (Two-Factor Authentication).
-- **Secure Webhook System**: Complete utilities for outbound HMAC-SHA256 webhook payload signing and asynchronous dispatching, plus inbound timing-safe signature verification.
-- **Observability & Audit Logging**: Ready for production monitoring with `/health`, `/live`, `/ready` endpoints, Prometheus `/metrics`, OpenTelemetry distributed tracing, and non-blocking asynchronous Audit Logging!
-- **Strict Environment Validation**: Uses **Zod** to validate all environment variables on boot. The server strictly refuses to start if `.env` is misconfigured, preventing silent production crashes!
-- **Security Hardened**: Pre-configured with `helmet`, strict `cors` policies, and payload size limitations.
-- **Centralized Error Handling**: A global `errorHandler` and `AppError` class that seamlessly catches and formats asynchronous errors using a clean `catchAsync` wrapper.
-- **Request Validation & Auto Swagger**: Uses **Zod** middleware to type-check incoming requests. Your Zod schemas serve as the single source of truth, automatically generating beautiful Swagger documentation at `/api-docs`! Swagger is configured purely programmatically in `src/app.ts` (keeping your `.env` clean) and intelligently disables itself in production environments automatically!
-- **Enterprise Path Aliasing**: Uses `@/` aliases configured perfectly via `tsconfig-paths` for local development and securely rewritten via **`tsc-alias`** for production builds. No hacky runtime module interception required!
-- **Production Docker Pipeline**: Ships with a multi-stage `Dockerfile` optimized for minimal size (`node:24-slim`), ready to deploy on AWS ECS, Render, or Railway. Local `docker-compose.yml` included for instant API + DB spin-up.
+```text
+.
+├── forge/                  # 🛡️ The Enterprise Framework Layer
+│   ├── audit/              # Event-driven asynchronous audit logging
+│   ├── auth/               # JWTs, Cookies, 2FA, API Keys
+│   ├── docs/               # Auto-generated Swagger/OpenAPI via Zod
+│   ├── errors/             # Standardized AppError and global error handlers
+│   ├── events/             # Native EventBus for decoupled domain logic
+│   ├── logger/             # High-performance Pino logger configuration
+│   ├── middleware/         # Flexible Auth, Error, & Tenancy middleware
+│   ├── observability/      # OpenTelemetry tracing, Metrics, Health checks
+│   ├── response/           # Standardized API response formatting (Success/Fail)
+│   ├── service-client/     # Native Circuit Breakers & HTTP microservice clients
+│   ├── tenancy/            # Multi-tenancy context isolation and resolution
+│   ├── validation/         # Request validation logic using Zod
+│   └── webhooks/           # Cryptographic signature validation for raw payloads
+│
+├── src/                    # 🚀 Your Application Logic
+│   ├── config/             # Zod-validated environment config
+│   ├── controllers/        # Express route handlers
+│   ├── dto/                # Data Transfer Objects
+│   ├── middleware/         # App-specific custom middleware
+│   ├── models/             # Database schemas (e.g., Mongoose/Prisma)
+│   ├── providers/          # Third-party service integrations
+│   ├── routes/             # Express routers and endpoint definitions
+│   ├── services/           # Core business logic layer
+│   ├── types/              # TypeScript global type definitions
+│   ├── utils/              # Helper functions and utilities
+│   ├── validators/         # Zod schemas for input validation
+│   └── app.ts              # Express application assembly
+│
+├── .github/workflows/      # ⚙️ CI/CD Pipelines (Build, Test, Deploy)
+├── server.ts               # 🚀 Application Entry Point (Bootstrapper)
+└── tsconfig.json           # 🛠️ Path aliases (@/* and @forge/*)
+```
 
 ---
 
-## ⭐️ Show Your Support
+## 🚀 Getting Started
 
-If you find this boilerplate helpful in kickstarting your enterprise Express.js applications, please consider giving it a **Star** ⭐️ on GitHub! It helps others find this resource and encourages continuous updates and improvements.
+### 1. Installation
 
----
-
-## 💻 Getting Started
-
-### 1. Clone the Repository
-
-You can clone the repository via standard Git or using the GitHub CLI:
-
-**Using Git:**
-
-```bash
-git clone https://github.com/prasanth-t0205/expressjs-boilerplate.git my-new-api
-cd my-new-api
-```
-
-**Using GitHub CLI:**
-
-```bash
-gh repo clone prasanth-t0205/expressjs-boilerplate
-cd expressjs-boilerplate
-```
-
-### 2. Rename the Project
-
-Since this is a boilerplate, it defaults to the name `expressjs-boilerplate`. We've included a handy script to instantly rename the `package.json` and Docker containers to your new project name:
-
-```bash
-npm run rename my-cool-api
-```
-
-### 3. Reset the Boilerplate
-
-When you are ready to start building your own features, you can clear out all the example "User" files (Controllers, Routes, Services, Models, etc.) by running:
-
-```bash
-npm run reset
-```
-
-You will be asked if you want to completely delete the example files or move them into an `/example` folder for future reference.
-
-### 4. Install Dependencies
-
-Make sure you have Node.js v20+ installed, then install the packages:
+Clone the repository and install the dependencies:
 
 ```bash
 npm install
 ```
 
-### 4. Environment Variables
+### 2. Environment Configuration
 
-Copy the example environment file and fill in your actual database credentials and secrets:
+Copy the sample environment file. Note that we strictly limit `.env` variables to infrastructure secrets (Database URI, JWT Secrets). All feature flags are configured programmatically in code!
 
 ```bash
 cp .env.example .env
 ```
 
-_Note: The server will automatically crash on boot if you forget to fill in the required `MONGO_URI` thanks to our Zod environment validation!_
+### 3. Running the Server
 
-### 5. Start the Development Server
-
-Run the local server with hot-reloading enabled. It will automatically recompile your TypeScript code whenever you save a file:
+Start the development server with hot-reloading:
 
 ```bash
 npm run dev
 ```
 
----
-
-## 🐳 Docker Setup
-
-If you don't want to install MongoDB locally, or if you want to test the production build, use Docker!
-
-### Local Development (with auto-provisioned MongoDB)
+To compile and run in production mode:
 
 ```bash
-docker-compose up --build
-```
-
-This instantly spins up a local MongoDB container and your Node.js API, automatically connecting them.
-
-### Production Deployment
-
-The included `Dockerfile` uses a multi-stage build. It securely compiles the TypeScript code in Stage 1, then creates a highly-optimized Debian slim container running a non-root `node` user in Stage 2. It is strictly configured for production platforms like Render or AWS.
-
----
-
-## 📁 Project Structure
-
-```text
-expressjs-boilerplate/
-├── src/
-│   ├── config/           # Strict Zod environment validation & DB configurations
-│   ├── controllers/      # Route handlers (Extracts params, calls services, sends JSON response)
-│   ├── dto/              # Data Transfer Objects (Strict TS interfaces for API payloads)
-│   ├── middleware/       # Global error handler, URL-based rate limiters, Zod validators
-│   ├── models/           # Database Schemas (e.g., Mongoose or Prisma)
-│   ├── providers/        # 3rd-party SDK Integrations (Stripe, SendGrid, etc.)
-│   ├── routes/           # Express Routers mapping endpoints to controllers
-│   ├── services/         # Core Business Logic (DB-agnostic)
-│   ├── utils/            # Helpers (AppError, catchAsync, Winston logger)
-│   ├── validators/       # Zod schemas defining the shape of incoming requests
-│   └── app.ts            # Express application configuration
-├── tests/                # Unit and Integration tests
-├── .env.example          # Template for environment variables
-├── .gitignore            # Git ignore file
-├── .dockerignore         # Docker ignore file
-├── docker-compose.yml    # Local development Docker setup
-├── Dockerfile            # Production multi-stage build file
-├── package.json          # Project dependencies and scripts
-├── server.ts             # Application entry point & graceful shutdown
-└── tsconfig.json         # TypeScript compiler configuration
+npm run build
+npm start
 ```
 
 ---
 
-## 📜 Available Scripts
+## ⚙️ CI/CD Pipelines
 
-| Command                   | Description                                                                    |
-| ------------------------- | ------------------------------------------------------------------------------ |
-| `npm run dev`             | Starts the development server using `ts-node-dev` with hot-reloading.          |
-| `npm run build`           | Compiles the TypeScript source code and rewrites path aliases via `tsc-alias`. |
-| `npm start`               | Runs the compiled output in production using `node dist/server.js`.            |
-| `npm run reset`           | Interactively strips or moves the example boilerplate code.                    |
-| `npm run typecheck`       | Runs the TypeScript compiler in dry-run mode to check for any type errors.     |
-| `npm run lint`            | Lints the codebase using ESLint.                                               |
-| `npm run update:packages` | Interactively updates all dependencies to their latest major/minor versions.   |
-| `npm run test`            | Runs the Jest test suite.                                                      |
-| `npm run test:watch`      | Runs the test suite in watch mode (useful during development).                 |
-| `npm run test:coverage`   | Generates a test coverage report.                                              |
+This boilerplate includes robust GitHub Actions workflows out of the box, ensuring absolute confidence in your deployments.
 
----
+### Continuous Integration (`ci.yml`)
 
-## 🧪 Testing
+Triggers on Pull Requests to `main`.
 
-This boilerplate uses **Jest** and **Supertest** for robust testing.
+- Validates the codebase using `ESLint`.
+- Ensures strict TypeScript compliance using `npm run typecheck`.
+- Executes the Jest testing suite.
 
-1. **Unit Tests**: Place your unit tests for services, utilities, and standalone functions in the `tests/` directory (or alongside the files they test, e.g., `user.service.test.ts`).
-2. **Integration Tests**: Test your Express routes using `Supertest` to simulate HTTP requests (see `tests/app.test.ts` for an example).
+### Continuous Deployment (`cd.yml`)
 
-Run the tests using:
+Triggers on pushes to `main`.
 
-```bash
-npm run test
-```
+1. Compiles the TypeScript application.
+2. Builds a lightweight Docker Image using the included multi-stage `Dockerfile`.
+3. Pushes the Docker image to the GitHub Container Registry (`ghcr.io`).
+4. (Optional) Triggers a deployment webhook for platforms like Render, Railway, or Fly.io.
 
 ---
 
-## ⚡️ Distributed Rate Limiting (Valkey / Redis)
-
-This boilerplate avoids using naive in-memory rate limiters that fail when your application horizontally scales. Instead, it is designed to integrate with **Valkey** (or Redis) for enterprise-grade distributed rate limiting.
-
-Here is the perfect approach to building rate limiters using a distributed key-value store:
-
-### 1. Limiting by User ID (The Best Approach)
-
-For authenticated users, completely ignore their IP address. Apply the limit directly to their unique User ID. This ensures that if a user switches between their phone and laptop, they share the same rate limit pool.
-**Valkey Key Format:** `"ratelimit:user:<USER_ID>"`
-
-### 2. Limiting by User ID + Endpoint
-
-Some endpoints (like PDF exports or AI generation) are significantly more computationally expensive than others (like fetching a profile). You should rate limit these expensive endpoints independently of the user's global limit.
-**Valkey Key Format:** `"ratelimit:user:<USER_ID>:endpoint:<ENDPOINT_PATH>"`
-
-### 3. Limiting by IP + Endpoint (For Unauthenticated Users)
-
-If the user isn't logged in (e.g., the login screen or public search API), you must fall back to their IP address. However, always combine it with the specific endpoint. This ensures that if they spam the login route, they only get blocked from the login route, rather than being blocked from the entire public application.
-**Valkey Key Format:** `"ratelimit:ip:<IP_ADDRESS>:endpoint:<ENDPOINT_PATH>"`
-
-### 🛠️ How to Implement Valkey Rate Limiting
-
-**1. Install Dependencies**
-To connect Express to Valkey, install `ioredis` and `rate-limit-redis`:
-
-```bash
-npm install express-rate-limit rate-limit-redis ioredis
-```
-
-**2. Create the Middleware (`src/middleware/rateLimiter.middleware.ts`)**
-Here is a production-ready example using the Boilerplate's standards:
-
-```typescript
-import rateLimit from 'express-rate-limit';
-import { RedisStore } from 'rate-limit-redis';
-import Redis from 'ioredis';
-import { Request } from 'express';
-
-// Connect to Valkey (or Redis)
-const valkeyClient = new Redis(process.env.VALKEY_URI || 'redis://localhost:6379');
-
-export const apiRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Limit each user to 100 requests per window
-  standardHeaders: true,
-  legacyHeaders: false,
-
-  // Connect to Valkey Store
-  store: new RedisStore({
-    sendCommand: (...args: string[]) => valkeyClient.call(...args),
-  }),
-
-  // Generate Key based on User ID (or fallback to IP + Endpoint)
-  keyGenerator: (req: Request): string => {
-    // If the user is logged in, limit by their User ID
-    if (req.user && req.user.id) {
-      return `ratelimit:user:${req.user.id}`;
-    }
-    // Fallback for unauthenticated users: IP + Endpoint
-    const ip = req.ip || 'unknown';
-    return `ratelimit:ip:${ip}:endpoint:${req.originalUrl}`;
-  },
-
-  message: {
-    success: false,
-    message: 'Too many requests. Please try again later.',
-  },
-});
-```
-
-**3. Apply it in `src/app.ts`**
-
-```typescript
-import { apiRateLimiter } from '@/middleware/rateLimiter.middleware';
-
-// Apply to all API routes
-app.use('/api', apiRateLimiter);
-```
-
----
-
-## ⚒️ Forge Core Utility Layer
-
-The `src/forge/` directory is the heart of this boilerplate. It is a collection of pre-built, production-ready, database-agnostic utility modules that every feature in your application can import and use.
-
-Instead of rebuilding auth or error handling from scratch for every project, you write your own business logic and simply **import what you need from forge**.
-
-### What's inside Forge?
-
-1. **`Auth & Tokens`**: Secure JWT generation and verification, cookie handling, and 12-round bcrypt hashing.
-2. **`Response & Errors`**: Standardizes all API responses (`ApiResponse.success()`) and provides a global, predictable error handler (`AppError`).
-3. **`Middlewares`**: Plug-and-play route guards for authentication (`authenticate`) and role-based access control (`authorize('admin')`).
-4. **`Validation`**: Reusable Zod schemas for things like strong passwords, emails, and object IDs.
-
-### How to use it in your code:
-
-```typescript
-// 1. Secure Route Guards
-import { authenticate, authorize } from '@/forge/middleware';
-router.delete('/users/:id', authenticate, authorize('admin'), userController.delete);
-
-// 2. Standardized API Responses
-import { ApiResponse } from '@/forge/response';
-return ApiResponse.success(res, user, 'User created successfully', 201);
-
-// 3. Easy Password Hashing
-import { hashPassword } from '@/forge/auth';
-const hashed = await hashPassword('mySecurePassword123!');
-
-// 4. Custom Errors
-import { AppError } from '@/forge/errors';
-if (!user) throw new AppError('User not found', 404);
-```
-
-By keeping these tools completely separated from your database models, your core architecture remains pristine and highly portable!
-
----
-
-## 📖 Automated Swagger / OpenAPI Documentation
-
-Writing and maintaining API documentation manually is a burden. In this boilerplate, **your Zod validation schemas automatically generate your Swagger UI documentation!**
-
-Because we use Zod as the single source of truth, whenever you update a request schema or add a new field, the Swagger documentation is instantly updated in real-time.
-
-### How it works:
-
-1. **Define your Schema**: You write a Zod schema for request validation (e.g. `UserSchema`).
-2. **Register the Path**: You register the endpoint with the `forge/docs` registry.
-3. **View the Docs**: Swagger UI automatically renders the interactive documentation at `/api-docs`.
-
-### Example (as seen in `src/app.ts`):
-
-```typescript
-import { registry, successResponse } from '@/forge/docs';
-import { z } from 'zod';
-
-// 1. Register a schema
-const HealthResponseSchema = registry.register(
-  'HealthResponse',
-  z.object({
-    status: z.string(),
-    timestamp: z.string(),
-  }),
-);
-
-// 2. Register the endpoint path
-registry.registerPath({
-  method: 'get',
-  path: '/health',
-  tags: ['Health'],
-  summary: 'Check API health status',
-  responses: {
-    200: successResponse(HealthResponseSchema, 'API is healthy'),
-  },
-});
-```
-
-To view your interactive documentation, just run the server (`npm run dev`) and visit **`http://localhost:3000/api-docs`**! You can easily toggle documentation on or off in production using the `SWAGGER_ENABLED` environment variable.
-
----
-
-## ⚙️ CI/CD & Automation
-
-This boilerplate comes with a professional-grade CI/CD pipeline out of the box, designed to keep the codebase perfectly clean and automate deployments.
-
-### 1. Local Git Hooks (Husky & lint-staged)
-
-Before a commit is ever created, **Husky** intercepts the process and runs `lint-staged`. This ensures that ESLint and Prettier are run automatically on your staged files.
-Additionally, **commitlint** enforces the [Conventional Commits](https://www.conventionalcommits.org/) standard on all commit messages (e.g., `feat: add user login`, `fix: resolve crash on startup`). If your code fails linting or your commit message is formatted incorrectly, the commit is safely blocked so you can fix it locally!
-
-> ⚠️ **Important**: Under the Conventional Commits standard, the first line of your commit message **must not exceed 100 characters**. If it is too long, the commit will be blocked!
-
-### 2. The Quality Gate (`ci.yml`)
-
-When you open a Pull Request against `main`, the `ci.yml` GitHub Action automatically runs. This acts as a strict quality gate that:
-
-- Typechecks the entire project (`tsc --noEmit`)
-- Lints the codebase
-- Runs the Jest test suite
-- Verifies a 70% test coverage threshold
-- Ensures the production build compiles successfully
-
-### 3. The Deploy Pipeline (`cd.yml`)
-
-When code is successfully merged into `main`, the `cd.yml` pipeline triggers. It builds a highly-optimized multi-stage Docker image and deploys it.
-
-> 💡 **Developer Setup**: Inside `.github/workflows/cd.yml`, there are templates for **Render, Railway, Fly.io, and AWS ECS**. Simply uncomment the one you use and add the required secret (like `RENDER_DEPLOY_HOOK_URL`) to your GitHub repository secrets!
-
-### 🛡️ Recommended Branch Protection Rules
-
-For the CI/CD pipeline to be effective, you should enable strict branch protection on `main` in your GitHub repository settings:
-
-1. Require a pull request before merging
-2. Require status checks to pass before merging (Search and select the `quality-gate` action)
-3. Do not allow bypassing the above settings
-
----
-
-## 🏗️ Design Patterns (How to build features)
-
-To maintain clean architecture, follow this exact request lifecycle when building new features:
-
-1. **Route** (`user.route.ts`): Receives the HTTP request.
-2. **Validator** (`validate.middleware.ts`): Intercepts the request and parses the body against a Zod schema (`user.validator.ts`). If invalid, instantly returns `400 Bad Request` before the controller even executes.
-3. **Controller** (`user.controller.ts`): Wrapped in `catchAsync`. It extracts the typed data and passes it to the Service layer. **Do not write database queries here!**
-4. **Service** (`user.service.ts`): Performs the core business logic (e.g., checking if an email exists) and queries the database via Repositories or Models.
-5. **Controller**: Receives the data back from the Service and sends the successful JSON response to the client.
-
-By strictly decoupling the controller from the service, your codebase becomes significantly easier to test, maintain, and scale!
+## 🤝 Contributing
+
+Contributions are always welcome! If you want to add new enterprise features to the `forge/` directory or improve existing logic:
+
+1. **Fork the Repository**: Create your own copy of the project.
+2. **Create a Branch**: `git checkout -b feature/amazing-feature`
+3. **Make your Changes**: Ensure you adhere to the strict TypeScript configuration.
+4. **Run the Checks**: Ensure `npm run typecheck` and `npm run lint` pass successfully.
+5. **Open a Pull Request**: Submit your PR with a detailed explanation of your changes. We will review and merge it!
+
+<div align="center">
+  <p>Built with ❤️ for developers who love clean architecture.</p>
+</div>
